@@ -18,7 +18,7 @@ This is the **frontend** of the Network Traffic Dashboard, built with **Next.js,
 
 ## 📸 Screenshots
 
-![Dashboard Screenshot](./assets/dashboard.png)
+![Dashboard Screenshot](./assets/image.png)
 
 ## 📦 Installation
 
