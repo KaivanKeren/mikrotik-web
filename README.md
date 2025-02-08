@@ -50,7 +50,7 @@ This is the **frontend** of the Network Traffic Dashboard, built with **Next.js,
 Update the WebSocket server URL in `src/config.ts`:
 
 ```ts
-export const WS_URL = "ws://localhost:9000";
+export const WS_URL = "ws://localhost:9090";
 ```
 
 ## 🤝 Contributing
