@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📡 Network Traffic Dashboard (Client)
 
-## Getting Started
+This is the **frontend** of the Network Traffic Dashboard, built with **Next.js, TypeScript, Chakra UI, and Recharts**. It visualizes real-time network traffic data using **WebSockets**.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- 📡 **Live WebSocket Data Streaming** - Real-time updates from the server.
+- 📊 **Interactive Charts** - Uses `recharts` to visualize network traffic.
+- 🎨 **Responsive UI** - Built with Shadcn/ui for a modern and adaptive design.
+- ⚡ **TypeScript-Powered** - Ensures better type safety and maintainability.
+- 🌐 **Multi-Interface Support** - Displays network data for multiple interfaces.
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js, TypeScript, Shadcn/ui, Recharts
+- **Backend:** [Network Traffic Dashboard API](https://github.com/yourusername/mikrotik-api) (Express.js WebSocket Server)
+- **Data Source:** Network traffic data (via API/WebSocket)
+
+## 📸 Screenshots
+
+![Dashboard Screenshot](./assets/dashboard.png)
+
+## 📦 Installation
+
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/yourusername/mikrotik-web.git
+   cd mikrotik-web
+   ```
+
+2. **Install dependencies**
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Run the application**
+   ```sh
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. **Connect to the WebSocket server**
+   - Ensure the backend WebSocket server is running.
+
+## 🔧 Configuration
+
+Update the WebSocket server URL in `src/config.ts`:
+
+```ts
+export const WS_URL = "ws://localhost:9000";
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🤝 Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Contributions are welcome! Feel free to fork this repository, open issues, and submit pull requests. 🚀
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📜 License
 
-## Learn More
+This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🚀 **Happy Coding!** 🎉
