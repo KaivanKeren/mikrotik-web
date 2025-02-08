@@ -13,7 +13,7 @@ This is the **frontend** of the Network Traffic Dashboard, built with **Next.js,
 ## 🛠️ Tech Stack
 
 - **Frontend:** Next.js, TypeScript, Shadcn/ui, Recharts
-- **Backend:** [Network Traffic Dashboard API](https://github.com/yourusername/mikrotik-api) (Express.js WebSocket Server)
+- **Backend:** [Network Traffic Dashboard API](https://github.com/KaivanKeren/mikrotik-api) (Express.js WebSocket Server)
 - **Data Source:** Network traffic data (via API/WebSocket)
 
 ## 📸 Screenshots
@@ -24,7 +24,7 @@ This is the **frontend** of the Network Traffic Dashboard, built with **Next.js,
 
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/yourusername/mikrotik-web.git
+   git clone https://github.com/KaivanKeren/mikrotik-web.git
    cd mikrotik-web
    ```
 
