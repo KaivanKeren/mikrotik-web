@@ -34,7 +34,47 @@ import {
   HardDrive,
   ArrowUpRight,
   ArrowDownRight,
+  Users,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
+import { Badge } from "./ui/badge";
+import { Dialog } from "./ui/dialog";
+
+interface UserData {
+  username: string;
+  profile: string;
+  uptime: string;
+  bytesIn: string;
+  bytesOut: string;
+  disabled: boolean;
+  comment: string;
+  limitBytesIn: string;
+  limitBytesOut: string;
+}
+
+interface UserDetails {
+  basicInfo: UserData;
+  activeSessions: {
+    ipAddress: string;
+    macAddress: string;
+    loginTime: string;
+    uptime: string;
+    sessionId: string;
+  }[];
+  connectionHistory: {
+    ipAddress: string;
+    macAddress: string;
+    lastSeen: string;
+    status: string;
+  }[];
+}
 
 interface NetworkInterface {
   interface: string;
@@ -54,7 +94,7 @@ interface NetworkData {
 
 interface TimeSeriesPoint {
   timestamp: string;
-  [key: string]: number | string; // For dynamic interface keys
+  [key: string]: number | string;
 }
 
 interface BandwidthAlert {
@@ -100,6 +140,9 @@ const NetworkDashboard = () => {
   const [selectedInterface, setSelectedInterface] = useState<string | null>(
     null
   );
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
+  const [showUserDetails, setShowUserDetails] = useState(false);
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:9090");
@@ -117,28 +160,41 @@ const NetworkDashboard = () => {
 
       if (message.type === "bandwidth_update") {
         setData(message.data);
+
         if (!selectedInterface && message.data.interfaces.length > 0) {
-          setSelectedInterface(message.data.interfaces[0].interface);
+          const firstInterface = message.data.interfaces[0].interface;
+          setSelectedInterface(firstInterface);
         }
 
         setTimeSeriesData((prev) => {
           const newPoint: TimeSeriesPoint = {
-            timestamp: new Date(message.timestamp).toLocaleTimeString(),
-            ...message.data.interfaces.reduce(
-              (acc, iface) => ({
-                ...acc,
-                [`${iface.interface}_rx`]: iface.rxKbps,
-                [`${iface.interface}_tx`]: iface.txKbps,
-              }),
-              {}
+            timestamp: new Date().toLocaleTimeString(),
+            ...Object.fromEntries(
+              Object.entries(message.data).filter(
+                ([key]) => key.includes("_rx") || key.includes("_tx")
+              )
             ),
           };
+
           return [...prev.slice(-30), newPoint];
         });
       } else if (message.type === "bandwidth_alert") {
         setAlerts((prev) => [...prev.slice(-9), message]);
       }
     };
+
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:3030/api/users");
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+    setInterval(fetchUsers, 3000);
 
     return () => ws.close();
   }, [selectedInterface]);
@@ -159,8 +215,30 @@ const NetworkDashboard = () => {
     }));
   };
 
-  const formatBytes = (bytes: number): string => {
-    return (bytes / 1024 / 1024).toFixed(2);
+  const fetchUserDetails = async (username: string) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3030/api/users/${username}`
+      );
+      const data = await response.json();
+      setSelectedUser(data);
+      setShowUserDetails(true);
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  const formatBytes = (bytes: string | number): string => {
+    const num = typeof bytes === "string" ? parseInt(bytes) : bytes;
+    if (isNaN(num)) return "0 B";
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    if (num === 0) return "0 B";
+    const i = Math.floor(Math.log(num) / Math.log(1024));
+    return `${(num / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+  };
+
+  const UserDetailsDialog = ({ user }: { user: UserDetails | null }) => {
+    if (!user) return null;
   };
 
   return (
@@ -255,6 +333,7 @@ const NetworkDashboard = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="interfaces">Interfaces</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
           </TabsList>
 
@@ -270,9 +349,14 @@ const NetworkDashboard = () => {
               <CardContent>
                 <div className="h-96">
                   <ResponsiveContainer width="100%" height="100%">
+                    
                     <LineChart data={timeSeriesData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="timestamp" />
+                      <XAxis
+                        dataKey="timestamp"
+                        tick={{ fontSize: 12 }}
+                        interval="preserveStartEnd"
+                      />
                       <YAxis
                         label={{
                           value: "Kbps",
@@ -287,15 +371,19 @@ const NetworkDashboard = () => {
                           <Line
                             type="monotone"
                             dataKey={`${iface.interface}_rx`}
-                            name={`${iface.interface} RX`}
+                            name={`${iface.interface} Download`}
                             stroke={COLORS[idx % COLORS.length]}
+                            dot={false}
+                            isAnimationActive={false}
                           />
                           <Line
                             type="monotone"
                             dataKey={`${iface.interface}_tx`}
-                            name={`${iface.interface} TX`}
-                            stroke={COLORS[idx % COLORS.length]}
+                            name={`${iface.interface} Upload`}
+                            stroke={COLORS[(idx + 1) % COLORS.length]}
                             strokeDasharray="5 5"
+                            dot={false}
+                            isAnimationActive={false}
                           />
                         </React.Fragment>
                       ))}
@@ -341,7 +429,7 @@ const NetworkDashboard = () => {
 
           <TabsContent value="interfaces" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {data.interfaces.map((iface, idx) => (
+              {data.interfaces.map((iface) => (
                 <Card key={iface.interface}>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -434,6 +522,58 @@ const NetworkDashboard = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="users" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Network Users
+                </CardTitle>
+                <CardDescription>
+                  Manage and monitor all network users
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Profile</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Download</TableHead>
+                      <TableHead>Upload</TableHead>
+                      <TableHead>Uptime</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => (
+                      <TableRow
+                        key={user.username}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => fetchUserDetails(user.username)}
+                      >
+                        <TableCell className="font-medium">
+                          {user.username}
+                        </TableCell>
+                        <TableCell>{user.profile}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={user.disabled ? "destructive" : "default"}
+                          >
+                            {user.disabled ? "Disabled" : "Active"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatBytes(user.bytesIn)}</TableCell>
+                        <TableCell>{formatBytes(user.bytesOut)}</TableCell>
+                        <TableCell>{user.uptime}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="alerts" className="space-y-4">
             {alerts.map((alert, idx) => (
               <Alert key={idx} variant="destructive">
@@ -457,6 +597,10 @@ const NetworkDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <Dialog open={showUserDetails} onOpenChange={setShowUserDetails}>
+        <UserDetailsDialog user={selectedUser} />
+      </Dialog>
     </div>
   );
 };
