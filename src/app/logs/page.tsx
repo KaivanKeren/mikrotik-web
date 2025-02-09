@@ -1,12 +1,11 @@
 "use client";
 
-import InterfaceComponent from "@/components/InterfaceComponent";
+import LogComponent from "@/components/LogComponent";
 import Sidebar from "@/components/Sidebar";
 import React, { useState } from "react";
 
-const InterfacePage = () => {
+const LogPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
   return (
     <div className="flex">
       <Sidebar
@@ -14,10 +13,10 @@ const InterfacePage = () => {
         setCollapsed={setSidebarCollapsed}
       />
       <div className="flex-1 min-h-screen bg-gray-50 p-8">
-        <InterfaceComponent />
+        <LogComponent />
       </div>
     </div>
   );
 };
 
-export default InterfacePage;
+export default LogPage;

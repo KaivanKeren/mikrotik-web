@@ -31,7 +31,7 @@ const Sidebar = ({
     { icon: Router, label: "Clients", href: "/clients" },
     { icon: Users, label: "Users", href: "/users" },
     { icon: Shield, label: "Firewall", href: "/firewall" },
-    { icon: FileClock, label: "Log", href: "/log" },
+    { icon: FileClock, label: "Logs", href: "/logs" },
     { icon: AlertTriangle, label: "Alerts", href: "/alerts" },
   ];
 
