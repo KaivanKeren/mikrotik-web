@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import NetworkDashboard from "@/components/NetworkDashboard";
+import LogComponent from "@/components/LogComponent";
 import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
+import React, { useState } from "react";
 
-export default function Home() {
+const LogPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   return (
     <div className="flex">
@@ -13,8 +13,10 @@ export default function Home() {
         setCollapsed={setSidebarCollapsed}
       />
       <div className="flex-1 min-h-screen bg-gray-50 p-8">
-        <NetworkDashboard />
+        <LogComponent />
       </div>
     </div>
   );
-}
+};
+
+export default LogPage;
