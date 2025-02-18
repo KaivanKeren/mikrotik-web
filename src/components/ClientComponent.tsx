@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Activity,
+  User,
 } from "lucide-react";
 import {
   CartesianGrid,
@@ -55,12 +56,10 @@ interface BandwidthUpdate {
 
 type WebSocketMessage = BandwidthAlert | BandwidthUpdate;
 
-const InterfaceComponent = () => {
+const ClientComponent = () => {
   const [alerts, setAlerts] = useState<BandwidthAlert[]>([]);
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesPoint[]>([]);
-  const [selectedInterface, setSelectedInterface] = useState<string | null>(
-    null
-  );
+  const [selectedIP, setSelectedIP] = useState<string | null>(null);
   const [data, setData] = useState<NetworkData>({
     interfaces: [],
     usageByIP: {},
@@ -77,30 +76,31 @@ const InterfaceComponent = () => {
       if (message.type === "bandwidth_update") {
         setData(message.data);
 
-        if (!selectedInterface && message.data.interfaces.length > 0) {
-          setSelectedInterface(message.data.interfaces[0].interface);
+        const ipAddresses = Object.keys(message.data.usageByIP);
+        if (!selectedIP && ipAddresses.length > 0) {
+          setSelectedIP(ipAddresses[0]);
         }
 
-        // Update peak usage
-        message.data.interfaces.forEach((iface) => {
+        // Update peak usage for all clients
+        Object.values(message.data.usageByIP).forEach((usage) => {
           setPeakUsage((prev) => ({
-            rx: Math.max(prev.rx, iface.rxKbps),
-            tx: Math.max(prev.tx, iface.txKbps),
+            rx: Math.max(prev.rx, usage.rx),
+            tx: Math.max(prev.tx, usage.tx),
           }));
         });
 
-        // Update total transferred
+        // Update total transferred for all clients
         setTotalTransferred((prev) => ({
           rx:
             prev.rx +
-            message.data.interfaces.reduce(
-              (sum, iface) => sum + iface.rxKbps,
+            Object.values(message.data.usageByIP).reduce(
+              (sum, usage) => sum + usage.rx,
               0
             ),
           tx:
             prev.tx +
-            message.data.interfaces.reduce(
-              (sum, iface) => sum + iface.txKbps,
+            Object.values(message.data.usageByIP).reduce(
+              (sum, usage) => sum + usage.tx,
               0
             ),
         }));
@@ -108,11 +108,11 @@ const InterfaceComponent = () => {
         setTimeSeriesData((prev) => {
           const newPoint: TimeSeriesPoint = {
             timestamp: new Date().toLocaleTimeString(),
-            ...message.data.interfaces.reduce(
-              (acc, iface) => ({
+            ...Object.entries(message.data.usageByIP).reduce(
+              (acc, [ip, usage]) => ({
                 ...acc,
-                [`${iface.interface}_rx`]: iface.rxKbps,
-                [`${iface.interface}_tx`]: iface.txKbps,
+                [`${ip}_rx`]: usage.rx,
+                [`${ip}_tx`]: usage.tx,
               }),
               {}
             ),
@@ -127,7 +127,7 @@ const InterfaceComponent = () => {
     return () => {
       ws.close();
     };
-  }, [selectedInterface]);
+  }, [selectedIP]);
 
   const formatSpeed = (speed: number) => {
     if (speed >= 1000000) return `${(speed / 1000000).toFixed(2)} Gbps`;
@@ -147,9 +147,9 @@ const InterfaceComponent = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Interfaces Monitor</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Client Monitor</h1>
           <p className="text-gray-500 mt-2">
-            Detailed Interfaces Monitor
+            Detailed Client Bandwidth Usage Monitor
           </p>
         </div>
       </div>
@@ -172,14 +172,14 @@ const InterfaceComponent = () => {
         </div>
       )}
 
-      {/* Network Interfaces Grid */}
+      {/* Client Usage Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {data.interfaces.map((iface) => (
-          <Card key={iface.interface} className="shadow-lg">
+        {Object.entries(data.usageByIP).map(([ip, usage]) => (
+          <Card key={ip} className="shadow-lg">
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2">
-                <WifiIcon className="w-5 h-5" />
-                <span className="font-bold">{iface.interface}</span>
+                <User className="w-5 h-5" />
+                <span className="font-bold">Client: {ip}</span>
                 <Activity className="w-4 h-4 text-green-500 ml-auto" />
               </CardTitle>
             </CardHeader>
@@ -194,11 +194,11 @@ const InterfaceComponent = () => {
                     </div>
                     <span
                       className={`text-xl font-bold ${getSpeedColor(
-                        iface.rxKbps,
+                        usage.rx,
                         "rx"
                       )}`}
                     >
-                      {formatSpeed(iface.rxKbps)}
+                      {formatSpeed(usage.rx)}
                     </span>
                   </div>
                   <div className="space-y-2">
@@ -208,11 +208,11 @@ const InterfaceComponent = () => {
                     </div>
                     <span
                       className={`text-xl font-bold ${getSpeedColor(
-                        iface.txKbps,
+                        usage.tx,
                         "tx"
                       )}`}
                     >
-                      {formatSpeed(iface.txKbps)}
+                      {formatSpeed(usage.tx)}
                     </span>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ const InterfaceComponent = () => {
                     <AreaChart data={timeSeriesData}>
                       <defs>
                         <linearGradient
-                          id="colorRx"
+                          id={`colorRx_${ip}`}
                           x1="0"
                           y1="0"
                           x2="0"
@@ -241,7 +241,7 @@ const InterfaceComponent = () => {
                           />
                         </linearGradient>
                         <linearGradient
-                          id="colorTx"
+                          id={`colorTx_${ip}`}
                           x1="0"
                           y1="0"
                           x2="0"
@@ -280,19 +280,19 @@ const InterfaceComponent = () => {
                       />
                       <Area
                         type="monotone"
-                        dataKey={`${iface.interface}_rx`}
+                        dataKey={`${ip}_rx`}
                         name="Download"
                         stroke="#10B981"
                         fillOpacity={1}
-                        fill="url(#colorRx)"
+                        fill={`url(#colorRx_${ip})`}
                       />
                       <Area
                         type="monotone"
-                        dataKey={`${iface.interface}_tx`}
+                        dataKey={`${ip}_tx`}
                         name="Upload"
                         stroke="#3B82F6"
                         fillOpacity={1}
-                        fill="url(#colorTx)"
+                        fill={`url(#colorTx_${ip})`}
                       />
                       <Legend />
                     </AreaChart>
@@ -343,4 +343,4 @@ const InterfaceComponent = () => {
   );
 };
 
-export default InterfaceComponent;
+export default ClientComponent;
