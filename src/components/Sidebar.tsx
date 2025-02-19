@@ -29,7 +29,7 @@ const Sidebar = ({
     { icon: LayoutDashboard, label: "Dashboard", href: "/" },
     { icon: Network, label: "Interfaces", href: "/interfaces" },
     { icon: Router, label: "Clients", href: "/clients" },
-    { icon: Users, label: "Users", href: "/users" },
+    { icon: Users, label: "Hotspot Users", href: "/users" },
     { icon: Shield, label: "Firewall", href: "/firewall" },
     { icon: FileClock, label: "Logs", href: "/logs" },
     { icon: AlertTriangle, label: "Alerts", href: "/alerts" },

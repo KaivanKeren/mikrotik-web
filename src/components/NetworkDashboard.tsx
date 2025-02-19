@@ -333,7 +333,7 @@ const NetworkDashboard = () => {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="interfaces">Interfaces</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="users">Hotspot Users</TabsTrigger>
             <TabsTrigger value="alerts">Alerts</TabsTrigger>
           </TabsList>
 
@@ -527,10 +527,10 @@ const NetworkDashboard = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Network Users
+                  Hotspot Users
                 </CardTitle>
                 <CardDescription>
-                  Manage and monitor all network users
+                  Manage and monitor all hotspot users
                 </CardDescription>
               </CardHeader>
               <CardContent>
