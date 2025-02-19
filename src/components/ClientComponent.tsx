@@ -130,8 +130,8 @@ const ClientComponent = () => {
   }, [selectedIP]);
 
   const formatSpeed = (speed: number) => {
-    if (speed >= 1000000) return `${(speed / 1000000).toFixed(2)} Gbps`;
-    if (speed >= 1000) return `${(speed / 1000).toFixed(2)} Mbps`;
+    if (speed >= 1000000) return `${(speed / 1000000).toFixed(2)} Mbps`;
+    if (speed >= 1000) return `${(speed / 1000).toFixed(2)} Kbps`;
     return `${speed.toFixed(2)} Kbps`;
   };
 
