@@ -36,5 +36,5 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ghcr.io/ximl7122137/mikrotik-web:latest .
-          docker push ghcr.io/ximl7122137/mikrotik-web:latest
+          docker build -t ximl7122137/mikrotik-web:latest .
+          docker push ximl7122137/mikrotik-web:latest
