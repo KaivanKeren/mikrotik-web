@@ -22,7 +22,6 @@ const LogComponent: React.FC = () => {
   const [logs, setLogs] = useState<LogsState>({ system: [], hotspot: [] });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -37,10 +36,10 @@ const LogComponent: React.FC = () => {
 
         // Pisahkan log berdasarkan topics
         const systemLogs = data.filter(
-          (log) => !log.topics.includes("hotspot")
+          (log) => log.topics && !log.topics.includes("hotspot")
         );
         const hotspotLogs = data.filter((log) =>
-          log.topics.includes("hotspot")
+          log.topics && log.topics.includes("hotspot")
         );
 
         setLogs({
@@ -89,7 +88,7 @@ const LogComponent: React.FC = () => {
             {/* Perbaikan: Pastikan topics diubah menjadi array sebelum dipetakan */}
             {!isHotspot && log.topics && (
               <div className="flex gap-2 mt-1">
-                {log.topics?.split(",").map((topic: string, i: React.Key | null | undefined) => (
+                {log.topics?.map((topic: string, i: React.Key | null | undefined) => (
                   <span
                     key={i}
                     className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
