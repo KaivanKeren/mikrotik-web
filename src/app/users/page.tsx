@@ -4,6 +4,8 @@ import Sidebar from "@/components/Sidebar";
 import React, { useState } from "react";
 
 export default function page() {
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    
   return (
     <div className="flex">
       <Sidebar
