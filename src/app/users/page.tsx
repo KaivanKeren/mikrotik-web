@@ -1,9 +1,18 @@
-import React from 'react'
+"use client";
 
-export default function page() {
+import Sidebar from "@/components/Sidebar";
+import React, { useState } from "react";
+
+export default function UsersPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div>UsersPage</div>
-  )
+    <div className="flex">
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+      />
+      <div>UsersPage</div>
+    </div>
+  );
 }
