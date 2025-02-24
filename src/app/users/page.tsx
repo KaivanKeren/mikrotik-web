@@ -1,10 +1,11 @@
 "use client";
 
 import Sidebar from "@/components/Sidebar";
+import UsersComponent from "@/components/UserComopenent";
 import React, { useState } from "react";
 
 export default function UsersPage() {
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <div className="flex">
@@ -12,7 +13,7 @@ export default function UsersPage() {
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />
-      <div>UsersPage</div>
+      <UsersComponent />
     </div>
   );
 }
