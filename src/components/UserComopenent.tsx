@@ -54,7 +54,7 @@ interface SortConfig {
   direction: "asc" | "desc";
 }
 
-const UsersPage: React.FC = () => {
+const UsersComponent: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -124,14 +124,21 @@ const UsersPage: React.FC = () => {
   const filteredAndSortedUsers = users
     .filter((user) =>
       Object.values(user).some((value) =>
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
       )
     )
     .sort((a, b) => {
-      if (sortConfig.direction === "asc") {
-        return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+      const valueA = a[sortConfig.key];
+      const valueB = b[sortConfig.key];
+      
+      if (valueA === undefined || valueB === undefined) {
+        return 0;
       }
-      return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+      
+      if (sortConfig.direction === "asc") {
+        return valueA > valueB ? 1 : -1;
+      }
+      return valueA < valueB ? 1 : -1;
     });
 
   return (
@@ -323,4 +330,4 @@ const UsersPage: React.FC = () => {
   );
 };
 
-export default UsersPage;
+export default UsersComponent;
